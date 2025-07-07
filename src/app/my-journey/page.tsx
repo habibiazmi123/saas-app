@@ -5,7 +5,11 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import { getUserCompanions, getUserSessions } from '@/lib/actions/companion.action';
+import {
+  getBookmarkedCompanions,
+  getUserCompanions,
+  getUserSessions,
+} from '@/lib/actions/companion.action';
 import { auth, currentUser } from '@clerk/nextjs/server';
 import Image from 'next/image';
 import { redirect } from 'next/navigation';
@@ -15,6 +19,7 @@ const Profile = async () => {
 
   if (!user) redirect('/sign-in');
 
+  const bookmarks = await getBookmarkedCompanions(user.id);
   const companions = await getUserCompanions(user.id);
   const sessionHistory = await getUserSessions(user.id);
 
@@ -55,6 +60,14 @@ const Profile = async () => {
       </section>
 
       <Accordion type="multiple">
+        <AccordionItem value="bookmark">
+          <AccordionTrigger className="text-2xl font-bold">
+            Bookmarked {`(${bookmarks.length})`}
+          </AccordionTrigger>
+          <AccordionContent>
+            <CompanionList title="Bookmarked" companions={bookmarks} />
+          </AccordionContent>
+        </AccordionItem>
         <AccordionItem value="recent">
           <AccordionTrigger className="text-2xl font-bold">Recent Sessions</AccordionTrigger>
           <AccordionContent>
